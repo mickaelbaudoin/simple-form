@@ -1,0 +1,17 @@
+{
+    "name": "mickaelbaudoin/simple-form",
+    "description": "formulaire",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "mickael baudoin",
+            "email": "mickael.baudoin@gmail.com"
+        }
+    ],
+    "version": "dev",
+    "autoload":{
+         "psr-4":{
+	      "MickaelBaudoin\\SimpleForm\\" : "src/"
+         }
+    }
+}
