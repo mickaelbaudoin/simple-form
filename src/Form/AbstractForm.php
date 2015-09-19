@@ -3,6 +3,7 @@
 namespace MickaelBaudoin\SimpleForm\Form;
 
 use MickaelBaudoin\SimpleForm\Element\Input;
+use MickaelBaudoin\SimpleForm\Element\IElement;
 
 abstract class AbstractForm implements IForm{
 
@@ -50,6 +51,11 @@ abstract class AbstractForm implements IForm{
 	public function generateSelect()
 	{
 
+	}
+
+	public function addElement(IElement $element)
+	{
+		$this->elements[$element->getname()] = $element;
 	}
 
 	public function getElement($name)

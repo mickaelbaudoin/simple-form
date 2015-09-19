@@ -14,6 +14,12 @@ interface IElement{
 
 	public function getValidators();
 
+	public function setRequired($active = true);
+
+	public function getRequired();
+
 	public function isValid();
+
+	public function getName();
 	
 }

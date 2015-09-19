@@ -3,6 +3,7 @@
 namespace MickaelBaudoin\SimpleForm\Element;
 
 use MickaelBaudoin\SimpleForm\Validator\IValidator;
+use MickaelBaudoin\SimpleForm\Validator\NotEmpty;
 
 abstract class AbstractElement implements IElement{
 
@@ -11,6 +12,8 @@ abstract class AbstractElement implements IElement{
 	protected $name;
 
 	protected $value;
+
+	protected $required;
 
 	protected $errors = array();
 
@@ -25,15 +28,21 @@ abstract class AbstractElement implements IElement{
 		if($validator != null){
 			$validators[] = $validator;
 		}
+
+		//default validator notEmpty
+		$this->addValidator(new NotEmpty(false));
 	}
 
 	public function setValue($value)
 	{
-		$this->value = $value;
+		$this->value = htmlentities($value);
 	}
 
-	public function getValue()
+	public function getValue($decode = true)
 	{
+		if($decode){
+			return html_entity_decode($this->value);
+		}
 		return $this->value;
 	}
 
@@ -44,12 +53,32 @@ abstract class AbstractElement implements IElement{
 
 	public function addValidator(IValidator $validator)
 	{
-		$this->validators[] = $validator;
+		$this->validators[$validator->getName()] = $validator;
 	}
 
 	public function getValidators()
 	{
 		return $this->validators;
+	}
+
+	public function getValidator($name)
+	{
+		if( isset($this->validators[$name]) && $this->validators[$name] instanceof IValidator ){
+			return $this->validators[$name];
+		}
+		throw new \Exception("Validator $name not found");
+	}
+
+	public function setRequired($active = true)
+	{
+		$this->required = $active;
+		$this->getValidator('NotEmpty')->setActive($active);
+		return $this;
+	}
+
+	public function getRequired()
+	{
+		return $this->required;
 	}
 
 	/**
@@ -71,16 +100,15 @@ abstract class AbstractElement implements IElement{
 	{
 		if(count($this->validators) > 0){
 			foreach($this->validators as $validator){
-				if(!$validator->isValid($this->value)){
-					$this->errors[$this->name] = array(
-						'value' => $this->value, 
-						'message' => $validator->getMessage()
-					);
+				if($validator->getActive()){
+					if(!$validator->isValid($this->value)){
+						$this->errors[$this->name] = array(
+							'value' => $this->value, 
+							'message' => $validator->getMessage()
+						);
+						return false;
+					}
 				}
-			}
-
-			if(count($this->errors) > 0){
-				return false;
 			}
 		}
 
